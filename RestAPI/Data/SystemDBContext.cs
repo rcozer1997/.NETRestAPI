@@ -1,10 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using RestAPI.Data.Map;
 using RestAPI.Models;
 
 namespace RestAPI.Data
 {
-    public class SystemDBContext : DbContext
+    public class SystemDBContext : IdentityDbContext<UserModel>
     {
         public SystemDBContext(DbContextOptions<SystemDBContext>options) : base(options)
          {
@@ -13,15 +14,13 @@ namespace RestAPI.Data
        
         public DbSet<UserModel> Users { get; set; }
         public DbSet<EventsModel> Events { get; set; }
+        public DbSet<EventsParticipantsModel> EventsParticipants { get; set; }
 
-        /*protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlite(connectionString: "DataSource=app.db;Cache=shared");
-        }*/
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new UserMap());
             modelBuilder.ApplyConfiguration(new EventsMap());
+            modelBuilder.ApplyConfiguration(new EventsParticipantsMap());
             base.OnModelCreating(modelBuilder);
         }
     }

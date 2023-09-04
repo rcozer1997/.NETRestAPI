@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using RestAPI.DTO.User;
 using RestAPI.Models;
 using RestAPI.Repositories;
 using RestAPI.Repositories.Interfaces;
@@ -8,6 +10,8 @@ namespace RestAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
+
     public class UserController : ControllerBase
     {   
         private readonly IUserRepository _userRepository;
@@ -15,47 +19,46 @@ namespace RestAPI.Controllers
         public UserController(IUserRepository userRepository) {
             _userRepository = userRepository;
         }
-        [HttpGet]
-        public async Task<ActionResult<List<UserModel>>> SearchAllUsers()
+
+        [HttpGet("search_all")]
+        public async Task<ActionResult<List<UserDTO>>> SearchAllUsers()
         {
-            List<UserModel> users = await _userRepository.SearchAllUsers();
-            return Ok(users);
+            List<UserDTO> result = await _userRepository.SearchAllUsers();
+
+            return Ok(result);
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<List<UserModel>>> SearchUserById(int id)
+        [HttpGet("search_by_id/{id}")]
+        public async Task<ActionResult<List<UserDTO>>> SearchUserById(string id)
         {
-            UserModel user = await _userRepository.SearchUserById(id);
-            return Ok(user);
+            UserDTO result = await _userRepository.SearchUserById(id);
+
+            return Ok(result);
         }
 
-        [HttpPost]
-        public async Task<ActionResult<UserModel>> SignUp([FromBody] UserModel userModel)
+        [HttpPost("signup")]
+        [AllowAnonymous]
+        public async Task<ActionResult<bool>> SignUp([FromBody] UserSignUpDTO user)
         {
-            UserModel user = await _userRepository.AddUser(userModel);
+            bool result = await _userRepository.AddUser(user);
 
-            return Ok(user);
-
-        }
-        [HttpPut("{id}")]
-        public async Task<ActionResult<UserModel>> Update([FromBody] UserModel userModel, int id)
-        {
-            userModel.Id = id;
-            UserModel user = await _userRepository.UpdateUser(userModel, id);
-
-            return Ok(user);
-
+            return result;
         }
 
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<UserModel>> Delete(int id)
+        [HttpPut("update/{id}")]
+        public async Task<ActionResult<UserDTO>> Update([FromBody] UserUpdateDTO user, string id)
         {
-         
-            Boolean deleted = await _userRepository.DeleteUser(id);
+            UserDTO result = await _userRepository.UpdateUser(user, id);
+
+            return Ok(result);
+        }
+
+        [HttpDelete("delete/{id}")]
+        public async Task<ActionResult<bool>> Delete(string id)
+        {   
+            bool deleted = await _userRepository.DeleteUser(id);
 
             return Ok(deleted);
-
         }
-
     }
 }

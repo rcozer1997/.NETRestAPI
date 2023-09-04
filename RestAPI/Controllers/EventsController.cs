@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Mvc;
+using RestAPI.DTO.Events;
 using RestAPI.Models;
 using RestAPI.Repositories;
 using RestAPI.Repositories.Interfaces;
@@ -8,6 +10,7 @@ namespace RestAPI.Controllers
 {
     [Microsoft.AspNetCore.Mvc.Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class EventsController : ControllerBase
     {
         private readonly IEventsRepository _eventsRepository;
@@ -15,46 +18,49 @@ namespace RestAPI.Controllers
         {
             _eventsRepository = eventsRepository;
         }
-        [HttpGet]
-        public async Task<ActionResult<List<EventsModel>>> SearchAllEvents()
+
+        [HttpGet("search_all")]
+        public async Task<ActionResult<List<EventsDTO>>> SearchAllEvents()
         {
-            List<EventsModel> events = await _eventsRepository.SearchAllEvents();
+            List<EventsDTO> events = await _eventsRepository.SearchAllEvents();
+
             return Ok(events);
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<List<EventsModel>>> SearchEventsById(int id)
+        [HttpGet("search_by_id/{id}")]
+        public async Task<ActionResult<List<EventsDTO>>> SearchEventsById(int id)
         {
-            EventsModel events = await _eventsRepository.SearchEventById(id);
+            EventsDTO events = await _eventsRepository.SearchEventById(id);
+
             return Ok(events);
         }
 
-        [HttpPost]
-        public async Task<ActionResult<EventsModel>> RegisterEvent([FromBody] EventsModel eventsModel)
-        {
-            EventsModel events = await _eventsRepository.AddEvent(eventsModel);
+        [HttpPost("register")]
+        public async Task<ActionResult<EventsDTO>> RegisterEvent([FromBody] EventsDTO events)
+        {   
+            if(events.ParticipantsEmails.Count < 1)
+            {
+                throw new Exception("It must have at least one participant!");
+            }
+            EventsDTO result = await _eventsRepository.AddEvent(events);
 
-            return Ok(events);
-
-        }
-        [HttpPut("{id}")]
-        public async Task<ActionResult<EventsModel>> Update([FromBody] EventsModel eventsModel, int id)
-        {
-            eventsModel.Id = id;
-            EventsModel events = await _eventsRepository.UpdateEvent(eventsModel, id);
-
-            return Ok(events);
-
+            return Ok(result);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<EventsModel>> Delete(int id)
-        {
+        [HttpPut("update/{id}")]
+        public async Task<ActionResult<EventsDTO>> Update([FromBody] EventsUpdateDTO events, int id)
+        {         
+            EventsDTO result = await _eventsRepository.UpdateEvent(events, id);
 
-            Boolean deletedEvent = await _eventsRepository.DeleteEvent(id);
+            return Ok(result);
+        }
+
+        [HttpDelete("delete/{id}")]
+        public async Task<ActionResult<EventsDTO>> Delete(int id)
+        {
+            bool deletedEvent = await _eventsRepository.DeleteEvent(id);
 
             return Ok(deletedEvent);
-
         }
     }
 }

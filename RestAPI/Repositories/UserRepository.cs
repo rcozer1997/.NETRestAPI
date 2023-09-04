@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using RestAPI.Data;
+using RestAPI.DTO.User;
 using RestAPI.Models;
 using RestAPI.Repositories.Interfaces;
 
@@ -7,59 +9,78 @@ namespace RestAPI.Repositories
 {
     public class UserRepository : IUserRepository
      {  
+        private readonly UserManager<UserModel> _userManager;
         private readonly SystemDBContext _dbContext;
-        public UserRepository(SystemDBContext systemDBContext)
+
+        public UserRepository(SystemDBContext systemDBContext, UserManager<UserModel> userManager)
         {
             _dbContext = systemDBContext;
+            _userManager = userManager;
         }
-        public async Task<List<UserModel>> SearchAllUsers()
+       
+        public async Task<List<UserDTO>> SearchAllUsers()
         {
-            return await _dbContext.Users.ToListAsync();
-        }
-
-        public async Task<UserModel> SearchUserById(int id)
-        {
-            return await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == id);
-        }
-
-        public async Task<UserModel> AddUser(UserModel user)
-        {
-           await _dbContext.Users.AddAsync(user);
-           await _dbContext.SaveChangesAsync();
-
-            return user;
-        }
-        public async Task<UserModel> UpdateUser(UserModel user, int id)
-        {
-            UserModel userById = await SearchUserById(id);
-            if(userById == null)
+            List<UserModel> userModel = await _dbContext.Users.ToListAsync();
+            return userModel.Select(x => new UserDTO()
             {
-                throw new Exception($"User with ID: {id} doesn't exist!");
-            }
-
-            userById.Name = user.Name;
-            userById.Email = user.Email;
-            userById.Password = user.Password;
-
-            _dbContext.Users.Update(userById);
-            await _dbContext.SaveChangesAsync();
-
-            return userById;
-                 
+                Email = x.Email,
+                Name = x.Name
+            }).ToList();
         }
-        public async Task<bool> DeleteUser(int id)
+
+        public async Task<UserDTO> SearchUserById(string id)
         {
-            UserModel userById = await SearchUserById(id);
+            UserModel userModel = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == id);
+            return new UserDTO()
+            {
+                Email = userModel.Email,
+                Name = userModel.Name
+            };
+        } 
+
+        public async Task<bool> AddUser(UserSignUpDTO user)
+        {
+                var identityUser = new UserModel
+                {
+                    Name = user.Name,
+                    Email = user.Email,
+                    UserName = user.Email,
+                };
+                var result = await _userManager.CreateAsync(identityUser, user.Password);
+                return result.Succeeded;      
+        }
+
+        public async Task<UserDTO> UpdateUser(UserUpdateDTO user, string id)
+        {
+            UserModel userById = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == id);
             if (userById == null)
             {
                 throw new Exception($"User with ID: {id} doesn't exist!");
             }
+            userById.Name = user.Name;
+            userById.Email = user.Email;
 
+            _dbContext.Users.Update(userById);
+            await _dbContext.SaveChangesAsync();
+
+            return new UserDTO()
+            {
+                Email = userById.Email,
+                Name = userById.Name
+            };
+
+        }
+        public async Task<bool> DeleteUser(string id)
+        {
+            UserModel userById = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == id);
+            if (userById == null)
+            {
+                throw new Exception($"User with ID: {id} doesn't exist!");
+            }
             _dbContext.Users.Remove(userById);
             await _dbContext.SaveChangesAsync();
 
             return true;
         }
-
     }
 }

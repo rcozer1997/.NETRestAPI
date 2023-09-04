@@ -13,10 +13,7 @@ namespace RestAPI.Data.Map
             builder.Property(e => e.Description).IsRequired().HasMaxLength(50);
             builder.Property(e => e.Date).IsRequired();
             builder.Property(e => e.ResponsibleId);
-            builder.Property(e => e.Participants).IsRequired();
             builder.HasOne(e => e.Responsible);
-           
-
         }
     }
 }
