@@ -59,6 +59,7 @@ A resume of each of them:
 ## Instructions to run the program
 
 1. *Database*
+   
 First of all, you need to configure the database. 
 - You must have SQL Server installed, because this is what the program is configured to use.
 - At the "appsettings.json" file, you must change the "Password" field, in ConnectionStrings, to your "sa" password, in SQL Server.
