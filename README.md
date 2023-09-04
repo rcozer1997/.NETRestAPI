@@ -26,7 +26,7 @@ The API architecture consists of the following components:
 - **Repositories:** The Repositories layer is responsible for data access and storage. It handle with operations like retrieving, storing, updating, and deleting.
 
 - **Data:** The Data contains the Database context and the Maps used to mapping the data to a proper format.
-- 
+  
 - **Models:** Used to store the classes that represent the data models used by the API, such as EventModels and UserModels.
 
 - **DTO:** A crucial component for organizing and managing the classes. Is used to facilitate and improve the efficiency when transfering data between different parts of the application.
@@ -34,7 +34,7 @@ The API architecture consists of the following components:
 
 ## Database
 
-The API uses SQL Server as the database for storing entity tags. The application creates three main tables (**Events**, **EventsParticipants** and **Users**). Note that the "User" is the table AspNetUsers, created by the ASPNET Identity.
+- The API uses SQL Server as the database for storing entity tags. The application creates three main tables (**Events**, **EventsParticipants** and **Users**). Note that the "User" is the table AspNetUsers, created by the ASPNET Identity.
 A resume of each of them:
 - **Events:** At this table, we store the events created with the following columns:
   ``Id`` (int/unique): Filter events by tag ID.
@@ -134,14 +134,14 @@ https://localhost:7038/api/Events/update/3
   
 ## Packages used (at Visual Studio)
 
-"Microsoft.AspNetCore.Authentication" Version="2.1.2" 
-"Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.21" 
-"Microsoft.AspNetCore.Identity" Version="2.1.39" 
-"Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.21" 
-"Microsoft.EntityFrameworkCore" Version="7.0.10" 
-"Microsoft.EntityFrameworkCore.Design" Version="7.0.10"
-"Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.10"
-"Microsoft.EntityFrameworkCore.Tools" Version="7.0.10"
+- "Microsoft.AspNetCore.Authentication" Version="2.1.2" 
+- "Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.21" 
+- "Microsoft.AspNetCore.Identity" Version="2.1.39" 
+- "Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.21" 
+- "Microsoft.EntityFrameworkCore" Version="7.0.10" 
+- "Microsoft.EntityFrameworkCore.Design" Version="7.0.10"
+- "Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.10"
+- "Microsoft.EntityFrameworkCore.Tools" Version="7.0.10"
 
 ## Test Questions
 
